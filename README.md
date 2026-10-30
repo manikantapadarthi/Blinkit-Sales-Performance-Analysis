@@ -1,265 +1,223 @@
-Blinkit Sales Analysis
+# Blinkit Sales Analysis Using PostgreSQL
 
-📌 Project Overview
+## 📌 Project Overview
 
-This project focuses on analyzing Blinkit sales data using PostgreSQL to identify sales patterns, evaluate product category performance, compare outlet characteristics, and generate business insights using SQL queries.
+This project focuses on analyzing Blinkit sales data using **PostgreSQL** to understand product category performance, outlet characteristics, sales distribution, and key business metrics.
 
-The project covers data cleaning, KPI development, exploratory data analysis, sales segmentation, revenue contribution analysis, and advanced SQL techniques such as window functions and conditional logic.
+The project uses SQL queries for data cleaning, exploratory data analysis (EDA), KPI calculation, sales aggregation, revenue contribution analysis, and outlet performance ranking.
 
-🎯 Project Objectives
+The main goal is to extract meaningful insights from sales data that can support business decisions related to product categories, outlet sizes, location tiers, and outlet types.
 
-Analyze overall sales performance and key business metrics.
+## 🎯 Project Objectives
 
-Identify the highest-revenue-generating item categories.
+- Analyze overall sales performance using key performance indicators (KPIs).
+- Identify product categories that generate the highest sales.
+- Compare sales performance across different outlet sizes.
+- Evaluate sales across outlet location tiers.
+- Identify the best-performing outlet types.
+- Analyze sales contributions from Low Fat and Regular products.
+- Standardize inconsistent categorical values.
+- Check missing values and identify potentially invalid numeric records.
+- Rank outlet types and location tiers using PostgreSQL window functions.
 
-Compare sales performance across outlet sizes, types, and location tiers.
+## 🛠️ Tools and Technologies
 
-Analyze sales across different item price ranges.
+- **Database:** PostgreSQL
+- **SQL Environment:** pgAdmin 4
+- **Language:** SQL
+- **Techniques:** Data Cleaning, Aggregation, Exploratory Data Analysis, KPI Analysis, Window Functions, Conditional Aggregation
 
-Evaluate sales contributions from Low Fat and Regular products.
+## 📂 Dataset Description
 
-Rank outlet types and location tiers by sales.
+The dataset contains product, pricing, visibility, outlet, and sales information.
 
-Calculate revenue contribution percentages.
+| Column Name | Description |
+|---|---|
+| `Item_Fat_Content` | Fat content classification of the product |
+| `Item_Type` | Product category |
+| `Item_MRP` | Maximum Retail Price of the product |
+| `Outlet_Size` | Size classification of the outlet |
+| `Outlet_Location_Type` | Location tier of the outlet |
+| `Outlet_Type` | Outlet business format |
+| `Item_Visibility` | Visibility measure associated with the product |
+| `Outlet_Establishment_Year` | Year in which the outlet was established |
+| `Sales` | Sales value associated with the record |
 
-Apply window functions for ranking and comparative analysis.
+## 🧹 Data Cleaning and Preparation
 
-Identify potential business opportunities from sales patterns.
+The project includes the following data preparation steps:
 
-🛠️ Tools and Technologies
+### 1. Data Inspection
+- Display sample records from the dataset.
+- Count the total number of records.
+- Identify distinct product fat-content categories.
 
-Database: PostgreSQL
+### 2. Standardization of Fat Content
+Inconsistent labels are standardized as follows:
 
-Query Tool: pgAdmin 4
+- `LF` → `Low Fat`
+- `low fat` → `Low Fat`
+- `reg` → `Regular`
 
-Language: SQL
+### 3. Outlet Size Standardization
+- Remove leading and trailing spaces using `TRIM()`.
+- Standardize capitalization using `INITCAP()`.
 
-Techniques: Data Cleaning, Aggregation, Exploratory Data Analysis, KPI Analysis, Window Functions, CASE Statements, CTEs
+### 4. Missing Value Analysis
+Check missing values in the following columns:
 
-📂 Dataset Description
+- Item Type
+- Sales
+- Item MRP
+- Outlet Size
+- Outlet Type
+- Outlet Establishment Year
 
-The dataset contains product and outlet-related information used to analyze sales performance.
+### 5. Invalid Numeric Value Checks
+Identify records containing potentially invalid values, such as:
 
-Column
+- Negative sales
+- Negative item MRP
+- Negative item visibility
+- Establishment years earlier than 1900
 
-Description
+These checks identify suspicious records for investigation; they do not automatically remove them.
 
-Item_Fat_Content
+## 📊 Key Performance Indicators (KPIs)
 
-Fat content category of the item
+The project calculates the following KPIs:
 
-Item_Type
+| KPI | Description | SQL Function |
+|---|---|---|
+| Total Sales Revenue | Total sales value across all records | `SUM()` |
+| Average Sales per Record | Average sales value per record | `AVG()` |
+| Total Records | Total number of records | `COUNT(*)` |
+| Total Product Categories | Number of unique item categories | `COUNT(DISTINCT ...)` |
+| Average Item Visibility | Average visibility measure | `AVG()` |
+| Sales per Item Category | Total sales divided by the number of distinct item categories | `SUM()` and `COUNT()` |
+| Low Fat Sales Contribution | Percentage of total sales from Low Fat products | `SUM() FILTER` |
+| Regular Sales Contribution | Percentage of total sales from Regular products | `SUM() FILTER` |
 
-Product category
+## 🔍 Business Questions and Analysis
 
-Item_MRP
+### 1. Product Category Analysis
 
-Maximum Retail Price of the item
+**Objective:** Identify the strongest product categories based on sales.
 
-Outlet_Size
+The analysis calculates:
+- Total sales by item type.
+- Number of records in each category.
+- Average sales per record.
 
-Size classification of the outlet
+**Business value:** Helps identify categories that contribute more to overall sales and deserve further investigation.
 
-Outlet_Location_Type
+### 2. Outlet Size Analysis
 
-Location tier of the outlet
+**Objective:** Compare sales performance across outlet sizes.
 
-Outlet_Type
+The analysis calculates:
+- Total sales by outlet size.
+- Number of records by outlet size.
+- Average sales per record.
+- Percentage contribution to total sales.
 
-Type or format of the outlet
+NULL outlet sizes are grouped under `Unknown` using `COALESCE()`.
 
-Item_Visibility
+**Business value:** Helps compare sales distribution across outlet size classifications.
 
-Visibility measure of the item
+### 3. Outlet Location Tier Analysis
 
-Outlet_Establishment_Year
+**Objective:** Identify which location tier generates the highest sales.
 
-Year the outlet was established
+The analysis calculates:
+- Total sales by location tier.
+- Number of records per tier.
+- Average sales per record.
+- Sales ranking using `RANK()`.
+- Revenue contribution percentage.
 
-Sales
+**Business value:** Helps compare sales performance across different location tiers.
 
-Sales value associated with the record
+### 4. Outlet Type Analysis
 
-🧹 Data Cleaning and Preparation
+**Objective:** Evaluate the performance of different outlet business formats.
 
-The following data preparation operations are included:
+The analysis calculates:
+- Total sales by outlet type.
+- Number of records per outlet type.
+- Average sales per record.
+- Average item MRP.
+- Outlet ranking using `DENSE_RANK()`.
 
-Standardizing inconsistent Item_Fat_Content labels:
+**Business value:** Helps identify outlet types associated with higher sales and compare their average sales and pricing characteristics.
 
-LF and low fat → Low Fat
+### 5. Product Fat Content Analysis
 
-reg → Regular
+**Objective:** Compare sales contributions from Low Fat and Regular products.
 
-Standardizing outlet size labels using TRIM() and INITCAP().
+The analysis calculates the percentage of total sales associated with each fat-content category.
 
-Checking for missing values in important columns.
+**Business value:** Helps understand the distribution of sales across product fat-content classifications.
 
-Identifying suspicious negative numeric values.
+## 🧠 PostgreSQL Concepts Used
 
-Inspecting dataset records and counting total records.
+### Aggregate Functions
+- `SUM()` — Calculates total sales.
+- `AVG()` — Calculates average sales and item visibility.
+- `COUNT()` — Counts records.
+- `COUNT(DISTINCT ...)` — Counts unique categories.
 
-📊 Key Performance Indicators (KPIs)
+### Data Cleaning Functions
+- `TRIM()` — Removes leading and trailing spaces.
+- `LOWER()` — Converts text to lowercase for consistent matching.
+- `INITCAP()` — Standardizes capitalization.
+- `COALESCE()` — Replaces NULL values with a fallback value.
 
-The project calculates the following metrics:
+### Conditional Aggregation
+- `FILTER (WHERE ...)` — Calculates sales for specific product categories.
+- `NULLIF()` — Prevents division-by-zero errors in percentage calculations.
+- `ROUND()` — Rounds numeric results to a specified number of decimal places.
 
-Total Sales: Overall sales revenue represented in the dataset.
+### Window Functions
+- `RANK()` — Ranks location tiers according to total sales.
+- `DENSE_RANK()` — Ranks outlet types according to total sales without gaps after ties.
+- `SUM() OVER()` — Calculates grand totals across grouped results for revenue contribution analysis.
 
-Average Sales per Record: Average sales value per record.
+### Grouping and Sorting
+- `GROUP BY` — Aggregates records by categories.
+- `ORDER BY` — Sorts results based on sales performance.
 
-Total Records: Number of records in the dataset.
+## 📈 Business Value
 
-Total Item Categories: Number of distinct item categories.
+This project provides a foundation for understanding sales performance and exploring business questions such as:
 
-Average Item Visibility: Average item visibility measure.
+- Which product categories generate the most sales?
+- How is revenue distributed across outlet sizes?
+- Which location tiers perform best?
+- Which outlet types have the highest total sales?
+- How much do Low Fat and Regular products contribute to sales?
+- Which outlet categories should be investigated further for potential improvement?
 
-Sales per Item Category: Overall sales divided by the number of distinct item categories.
+The results can support further analysis and dashboard development using tools such as Power BI or Tableau.
 
-Low Fat Sales Contribution: Percentage of total sales from Low Fat products.
+## ⚙️ How to Run the Project
 
-Regular Sales Contribution: Percentage of total sales from Regular products.
+1. Install PostgreSQL.
+2. Open pgAdmin 4 and connect to your PostgreSQL server.
+3. Create a database for the project.
+4. Create the `blinkit` table using the SQL schema.
+5. Import the dataset into the table, ensuring the column names and data types match the schema.
+6. Open the SQL script in the pgAdmin Query Tool.
+7. Execute the queries section by section.
+8. Review the output for data quality, KPIs, product category performance, outlet size analysis, location tier analysis, and outlet type ranking.
 
-🔍 Business Questions and SQL Analysis
+**Note:** Run the table creation statement only when creating a new table. The `UPDATE` statements modify existing records, so execute them after importing the dataset.
 
-1. Product Category Analysis
+## 🚀 Future Enhancements
 
-Which item categories generate the highest sales?
+- Develop an interactive sales dashboard using Power BI or Tableau.
+- Add time-based analysis if transaction dates become available.
+- Incorporate profit, cost, and margin data.
+- Include a unique outlet identifier for outlet-level analysis.
+- Expand the analysis with additional product and location comparisons.
 
-What is the average sales value for each category?
-
-How many records belong to each item category?
-
-2. Outlet Size Analysis
-
-Which outlet sizes generate the highest sales?
-
-What is the average sales value by outlet size?
-
-What percentage of overall sales does each outlet size contribute?
-
-3. Location Tier Analysis
-
-Which outlet location tier performs best?
-
-What is the sales contribution percentage of each location tier?
-
-How can location tiers be ranked based on total sales?
-
-4. Outlet Type Analysis
-
-Which outlet type generates the highest sales?
-
-What is the average sales value for each outlet type?
-
-How can outlet types be ranked using sales performance?
-
-5. Price Range Analysis
-
-Items are segmented into price categories using CASE statements:
-
-Budget: Item MRP below 50
-
-Mid-Range: Item MRP from 50 to below 100
-
-Premium: Item MRP from 100 to below 200
-
-Luxury: Item MRP of 200 or above
-
-Sales, record counts, average sales, and average MRP are compared across these price segments.
-
-6. Product Fat Content Analysis
-
-Compare sales generated by Low Fat and Regular products.
-
-Calculate the percentage contribution of each fat content category.
-
-🧠 Advanced SQL Concepts Used
-
-Aggregate Functions
-
-SUM()
-
-AVG()
-
-COUNT()
-
-MIN()
-
-MAX()
-
-Window Functions
-
-RANK() — Assigns rankings while allowing ties.
-
-DENSE_RANK() — Assigns rankings without gaps after ties.
-
-ROW_NUMBER() — Assigns a unique sequential number to each row.
-
-SUM() OVER() — Calculates overall or cumulative totals.
-
-LAG() — Accesses a previous row in a defined ordering.
-
-LEAD() — Accesses a subsequent row in a defined ordering.
-
-AVG() OVER(PARTITION BY ...) — Calculates group-level averages while retaining individual records.
-
-Conditional and Analytical SQL
-
-CASE WHEN — Categorizes records into business segments.
-
-COALESCE() — Replaces NULL values with a specified fallback.
-
-NULLIF() — Helps prevent division-by-zero errors.
-
-FILTER (WHERE ...) — Applies conditions to aggregate calculations.
-
-GROUP BY and ORDER BY — Summarizes and sorts analytical results.
-
-Common Table Expressions (CTEs) — Organizes complex queries into readable steps.
-
-📈 Business Value
-
-The analysis can help stakeholders:
-
-Identify high-revenue-generating product categories.
-
-Compare outlet types and location tiers.
-
-Understand revenue contribution across product and outlet segments.
-
-Evaluate the distribution of sales across item price ranges.
-
-Identify above-average and below-average sales records.
-
-Prioritize further investigation into low-performing categories and outlet combinations.
-
-These results describe patterns in the available data and do not independently establish the causes of sales performance.
-
-⚙️ How to Run the Project
-
-Install PostgreSQL and pgAdmin 4.
-
-Create a database for the project.
-
-Import the dataset into PostgreSQL.
-
-Create the blinkit table using the schema in the SQL file.
-
-Load the dataset into the table, ensuring the column names and data types match.
-
-Open the SQL script in pgAdmin 4.
-
-Execute the queries section by section.
-
-Review the results for data quality, KPIs, product categories, outlet performance, and revenue contribution.
-
-🚀 Future Enhancements
-
-Build an interactive dashboard using Power BI or Tableau.
-
-Add time-based analysis if transaction dates become available.
-
-Incorporate profit margins, costs, and inventory data.
-
-Add outlet identifiers for physical outlet-level analysis.
-
-Develop more detailed category and location performance reports.

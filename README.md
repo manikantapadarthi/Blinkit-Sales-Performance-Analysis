@@ -1,4 +1,4 @@
-Blinkit Sales Analysis Using PostgreSQL
+Blinkit Sales Analysis
 
 📌 Project Overview
 
